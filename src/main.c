@@ -11,11 +11,12 @@
 #include <zephyr/sys/printk.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/sys/byteorder.h>
 
 // Define Manufacturer Specific Data structure
 typedef struct adv_mfg_data {
 	uint16_t company_id;
-	uint16_t temperature;
+	int16_t temperature;
 } adv_mfg_data_t;
 
 // This is our device name from prj.conf
@@ -26,7 +27,10 @@ typedef struct adv_mfg_data {
 #define COMPANY_ID 0x0059 // Nordic Semiconductor ASA
 
 // Initialise data to be advertised
-static adv_mfg_data_t adv_mfg_data = {COMPANY_ID, 0x00};
+static adv_mfg_data_t adv_mfg_data = {
+	.company_id = COMPANY_ID,
+	.temperature = 0,
+};
 
 /**
  * Our advertisement data structure.
@@ -41,8 +45,8 @@ static const struct bt_data ad[] = {
 // Now it's time for advertisement parameters
 static const struct bt_le_adv_param *adv_param = BT_LE_ADV_PARAM(
 	BT_LE_ADV_OPT_NONE,
-	BT_GAP_ADV_FAST_INT_MIN_2,
-	BT_GAP_ADV_FAST_INT_MAX_2,
+	BT_GAP_ADV_SLOW_INT_MIN,
+	BT_GAP_ADV_SLOW_INT_MIN,
 	NULL
 );
 
@@ -50,6 +54,9 @@ static const struct bt_le_adv_param *adv_param = BT_LE_ADV_PARAM(
 int main(void)
 {
 	int err;
+
+	float temperature = 25.1f;
+	bool increasing = true;
 
 	printk("Starting Scanner/Advertiser Demo\n");
 
@@ -71,15 +78,34 @@ int main(void)
 
 	while(1)
 	{
-		// Update your sensor data here
-		adv_mfg_data.temperature++; // Simulate temperature change
+		// Simulate temperature change
+		if (increasing)
+		{
+			temperature += 0.2f;
+			if (temperature >= 30.0f)
+			{
+				increasing = false;
+			}
+		}
+		else
+		{
+			temperature -= 0.2f;
+			if (temperature <= 20.0f)
+			{
+				increasing = true;
+			}
+		}
+
+		int16_t temp_int16 = (int16_t)(temperature * 100);
+
+		adv_mfg_data.temperature = sys_cpu_to_le16(temp_int16);
 
 		err = bt_le_adv_update_data(ad, ARRAY_SIZE(ad), NULL, 0);
 		if (err) {
 			printk("Failed to update advertising data (err %d)\n", err);
 		}
 
-		k_sleep(K_MSEC(400));
+		k_sleep(K_MSEC(500));
 	} 
 
 	return 0;
