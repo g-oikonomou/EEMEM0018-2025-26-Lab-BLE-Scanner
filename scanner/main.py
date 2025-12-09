@@ -16,7 +16,7 @@ TB_ACCESS_TOKEN = "yyg96elwr9hjg19hfgot"  # <--- PASTE TOKEN HERE
 
 # State variables for throttling
 last_sent_time = 0
-UPLOAD_INTERVAL = 1.0 # Send to cloud every 1 second (even if BLE is faster)
+UPLOAD_INTERVAL = 2.0 # Send to cloud every 1 second (even if BLE is faster)
 
 def push_to_cloud(temperature, grp_id, grp_rssi):
     """Sends JSON data to ThingsBoard via HTTP"""

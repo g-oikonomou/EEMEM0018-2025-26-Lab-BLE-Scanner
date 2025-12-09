@@ -45,11 +45,18 @@ static const struct bt_data ad[] = {
 	BT_DATA(BT_DATA_MANUFACTURER_DATA, (uint8_t *)&adv_mfg_data, sizeof(adv_mfg_data)),
 };
 
+/**
+ * Define advertising interval (in units of 0.625 ms)
+ * 
+ * For example, 0x0320 = 800 * 0.625 ms = 500 ms
+ */
+#define BT_ADV_INTERVAL 0x0320
+
 // Now it's time for advertisement parameters
 static const struct bt_le_adv_param *adv_param = BT_LE_ADV_PARAM(
 	BT_LE_ADV_OPT_NONE,
-	BT_GAP_ADV_SLOW_INT_MIN,
-	BT_GAP_ADV_SLOW_INT_MIN,
+	BT_ADV_INTERVAL,
+	BT_ADV_INTERVAL,
 	NULL
 );
 
