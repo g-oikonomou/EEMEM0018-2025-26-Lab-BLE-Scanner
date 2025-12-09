@@ -105,7 +105,7 @@ int main(void)
 		adv_mfg_data.temperature = sys_cpu_to_le16(temp_int16);
 
 		// Update your group ID here
-		adv_mfg_data.group_id = 1; // Example group ID
+		adv_mfg_data.group_id = 2; // Example group ID
 
 		err = bt_le_adv_update_data(ad, ARRAY_SIZE(ad), NULL, 0);
 		if (err) {
