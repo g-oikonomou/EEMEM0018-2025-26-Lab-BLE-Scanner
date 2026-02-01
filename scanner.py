@@ -30,6 +30,11 @@ import requests
 # Import scanner 
 from bleak import BleakScanner
 
+# Configure a logger.
+# We create a separate logger here so we can control ourselves without messing around with bleak
+import logging
+logger = logging.getLogger('Scanner')
+
 # CONFIGURATION
 TARGET_NAME = {"Lab4-Adv", "LabGroup1"}
 COMPANY_ID = 0x0059 
@@ -58,15 +63,15 @@ def push_to_cloud(temperature, grp_id, grp_rssi):
     try:
         response = requests.post(url, json=payload, timeout=2)
         if response.status_code == 200:
-            print(f" -> Cloud Upload Success: {payload}")
+            logger.info(" -> Cloud Upload Success: {payload}")
         elif response.status_code == 400:
-            print(f"Invalid URL, request parameters of body")
+            logger.warning("Invalid URL, request parameters of body")
         elif response.status_code == 404:
-            print(f"Invalid ACCESS_TOKEN used")
+            logger.warning("Invalid ACCESS_TOKEN used")
         else:
-            print(f" -> Cloud Error: {response.status_code}")
+            logging.warning(" -> Cloud Error: {response.status_code}")
     except Exception as e:
-        print(f" -> Cloud Connection Failed: {e}")
+        logger.error(" -> Cloud Connection Failed: {e}")
 
 def detection_callback(device, advertisement_data):
     global last_sent_time
@@ -76,11 +81,11 @@ def detection_callback(device, advertisement_data):
             
             # This allows you to debug and observe the raw data from your BLE packet
             raw_packet = advertisement_data.manufacturer_data
-            print(raw_packet)
+            logger.debug(raw_packet)
             
             # We only want the data after the company ID part 
             raw_bytes = advertisement_data.manufacturer_data[COMPANY_ID]
-            print(f"Actual data payload in HEX is: {raw_bytes.hex(' ')}")
+            logger.debug("Actual data payload in HEX is: {raw_bytes.hex(' ')}")
             
             try:
                 # 1. Decode BLE: refer to https://docs.python.org/3/library/struct.html, Section: Format Characters
@@ -91,11 +96,11 @@ def detection_callback(device, advertisement_data):
                 current_rssi = advertisement_data.rssi
                 
                 if group_id < 0:
-                    print(f"Error: Group ID {group_id} is out of bounds from device {device.name}")
+                    logger.error("Error: Group ID {group_id} is out of bounds from device {device.name}")
                     return
                 
                 # Print real-time to console
-                print(f"[{device.address}] BLE Rx: {temperature_c:.2f} °C from Group {group_id:d} with RSSI {current_rssi:d}")     
+                logger.info("[{device.address}] BLE Rx: {temperature_c:.2f} °C from Group {group_id:d} with RSSI {current_rssi:d}")
                 
                 # 2. Upload to Cloud (Throttled)
                 current_time = time.time()
@@ -104,18 +109,29 @@ def detection_callback(device, advertisement_data):
                     last_sent_time = current_time
                     
             except Exception as e:
-                logging.error("Error: {e}")
+                logger.error("Error: {e}")
         else:
-            logging.warning("Warning: Company ID mismatch...")
+            logger.warning("Warning: Company ID mismatch...")
 
 async def main():
-    print("Starting Gateway for {TARGET_NAME}...")
+    logger.info("Starting Gateway for {TARGET_NAME}...")
     scanner = BleakScanner(detection_callback=detection_callback, scanning_mode='active')
     await scanner.start()
     await asyncio.Event().wait()
 
+def log_init(level=logging.INFO):
+    logger.setLevel(logging.DEBUG)
+
+    # Create a handler and a formatted
+    ch = logging.StreamHandler()
+    ch.setLevel(level)
+    formatter = logging.Formatter('[%(asctime)s - %(name)s - %(levelname)s] %(message)s')
+    ch.setFormatter(formatter)
+
+    logger.addHandler(ch)
+
 if __name__ == "__main__":
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    log_init()
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
