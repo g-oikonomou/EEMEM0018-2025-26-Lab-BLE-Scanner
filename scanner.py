@@ -35,6 +35,20 @@ from bleak import BleakScanner
 import logging
 logger = logging.getLogger('Scanner')
 
+# Command line argument support
+import argparse
+defaults = {
+    'transport': 'MQTT',
+    'debug_level': 'INFO',
+}
+
+choices = {
+    'debug_level': ('DEBUG', 'INFO', 'WARN', 'ERROR'),
+    'transport': ('MQTT', 'HTTPS'),
+}
+
+__version__ = '2025/26'
+
 # CONFIGURATION
 TARGET_NAME = {"Lab4-Adv", "LabGroup1"}
 COMPANY_ID = 0x0059 
@@ -130,7 +144,37 @@ def log_init(level=logging.INFO):
 
     logger.addHandler(ch)
 
+def arg_parser():
+    parser = argparse.ArgumentParser(add_help = False,
+                                     description = "Scan for BLE advertisement frames and, if their payload meets a "
+                                                   "specific format (optionally) push them to the ThingsBoard Cloud.")
+
+
+    out_group = parser.add_argument_group('Transport Options')
+    out_group.add_argument('-t', '--transport', action='store', nargs='?',
+                           const=defaults['transport'], choices=choices['transport'], default=defaults['transport'],
+                           help="Push data to ThingsBoard over TRANSPORT. If -t is specified but TRANSPORT is omitted, "
+                                "%s will be used. If the argument is omitted altogether, data will not be pushed."
+                                % (defaults['transport'],))
+    
+    log_group = parser.add_argument_group('Debugging')
+    log_group.add_argument('-D', '--debug-level', action = 'store',
+                           choices = choices['debug_level'],
+                           default = defaults['debug_level'],
+                           help = "Print messages of severity DEBUG_LEVEL "
+                                  "or higher (Default %s)"
+                                   % (defaults['debug_level'],))
+
+    gen_group = parser.add_argument_group('General Options')
+    gen_group.add_argument('-v', '--version', action = 'version',
+                           version = 'Scanner v%s' % (__version__))
+    gen_group.add_argument('-h', '--help', action = 'help',
+                           help = 'Shows this message and exits')
+
+    return parser.parse_args()
+
 if __name__ == "__main__":
+    args = arg_parser()
     log_init()
     try:
         asyncio.run(main())
