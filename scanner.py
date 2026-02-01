@@ -102,6 +102,14 @@ def push_to_cloud_https(temperature, grp_id, grp_rssi):
     except Exception as e:
         logger.error(f" -> Cloud Connection Failed: {e}")
 
+def push_to_cloud(temperature, grp_id, grp_rssi):
+    try:
+        globals()[transport_handlers[args.transport]]()
+    except TypeError:
+        # If the transport handler has not been set, then it will be None and we get a TypeError.
+        # Carry on without pushing
+        pass
+
 def detection_callback(device, advertisement_data):
     if device.name not in ble_whitelist_rules['device_names']:
         logger.debug("Ignoring device '%s'" % (device.name,))
