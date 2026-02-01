@@ -25,7 +25,7 @@
 import asyncio
 import time
 import struct
-# Import the HTTP library in order to push to Thingysboard
+# Import the HTTP library in order to push to ThingsBoard
 import requests  
 # Import scanner 
 from bleak import BleakScanner
