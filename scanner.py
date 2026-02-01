@@ -26,8 +26,8 @@ import asyncio
 import time
 import struct
 # Import the HTTP library in order to push to ThingsBoard
-import requests  
-# Import scanner 
+import requests
+# Import scanner
 from bleak import BleakScanner
 
 # Configure a logger.
@@ -64,16 +64,16 @@ UPLOAD_INTERVAL = 2.0 # Send to cloud every 1 second (even if BLE is faster)
 def push_to_cloud(temperature, grp_id, grp_rssi):
     """Sends JSON data to ThingsBoard via HTTP"""
     url = f"{TB_URL}/{TB_ACCESS_TOKEN}/telemetry"
-    
+
     json_key_temp = f"Temperature_{grp_id}"
-    json_key_rssi = f"RSSI_{grp_id}"    
-    
+    json_key_rssi = f"RSSI_{grp_id}"
+
     # Payload format follows this JSON schema: https://thingsboard.io/docs/reference/http-api/
     payload = {
-        json_key_temp: temperature, 
+        json_key_temp: temperature,
         json_key_rssi: grp_rssi
     }
-    
+
     try:
         response = requests.post(url, json=payload, timeout=2)
         if response.status_code == 200:
@@ -100,7 +100,7 @@ def detection_callback(device, advertisement_data):
             # We only want the data after the company ID part 
             raw_bytes = advertisement_data.manufacturer_data[COMPANY_ID]
             logger.debug("Actual data payload in HEX is: {raw_bytes.hex(' ')}")
-            
+
             try:
                 # 1. Decode BLE: refer to https://docs.python.org/3/library/struct.html, Section: Format Characters
                 unpacked = struct.unpack("<hB", raw_bytes)
@@ -108,20 +108,20 @@ def detection_callback(device, advertisement_data):
                 temperature_c = unpacked[0] / 100.0 # Convert to float
                 group_id = unpacked[1]
                 current_rssi = advertisement_data.rssi
-                
+
                 if group_id < 0:
                     logger.error("Error: Group ID {group_id} is out of bounds from device {device.name}")
                     return
-                
+
                 # Print real-time to console
                 logger.info("[{device.address}] BLE Rx: {temperature_c:.2f} °C from Group {group_id:d} with RSSI {current_rssi:d}")
-                
+
                 # 2. Upload to Cloud (Throttled)
                 current_time = time.time()
                 if (current_time - last_sent_time) >= UPLOAD_INTERVAL:
                     push_to_cloud(temperature_c, group_id, current_rssi)
                     last_sent_time = current_time
-                    
+
             except Exception as e:
                 logger.error("Error: {e}")
         else:
