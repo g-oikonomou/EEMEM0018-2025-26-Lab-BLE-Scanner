@@ -83,15 +83,15 @@ def push_to_cloud(temperature, grp_id, grp_rssi):
     try:
         response = requests.post(url, json=payload, timeout=2)
         if response.status_code == 200:
-            logger.info(" -> Cloud Upload Success: {payload}")
+            logger.info(f" -> Cloud Upload Success: {payload}")
         elif response.status_code == 400:
-            logger.warning("Invalid URL, request parameters of body")
+            logger.warning(f"Invalid URL, request parameters of body")
         elif response.status_code == 404:
-            logger.warning("Invalid ACCESS_TOKEN used")
+            logger.warning(f"Invalid ACCESS_TOKEN used")
         else:
-            logger.warning(" -> Cloud Error: {response.status_code}")
+            logger.warning(f" -> Cloud Error: {response.status_code}")
     except Exception as e:
-        logger.error(" -> Cloud Connection Failed: {e}")
+        logger.error(f" -> Cloud Connection Failed: {e}")
 
 def detection_callback(device, advertisement_data):
     if device.name not in ble_whitelist_rules['device_names']:
