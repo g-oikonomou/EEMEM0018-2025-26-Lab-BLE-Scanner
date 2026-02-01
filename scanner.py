@@ -51,9 +51,13 @@ choices = {
 
 __version__ = '2025/26'
 
-# CONFIGURATION
-TARGET_NAME = {"Lab4-Adv", "LabGroup1"}
-COMPANY_ID = 0x0059 
+# BLE Whitelisting Configuration
+# We only process BLE packets from devices with a name that appears in a well-known list
+# We only process manufacturer-specific data if the manufacturer is Nordic Semi (0x0059)
+ble_whitelist_rules = {
+    'device_names': {},
+    'company_id': 0x0059
+}
 
 # ThingsBoard Config
 TB_URL = "https://demo.thingsboard.io/api/v1"
