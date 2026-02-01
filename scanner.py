@@ -133,12 +133,12 @@ async def main():
     await scanner.start()
     await asyncio.Event().wait()
 
-def log_init(level=logging.INFO):
+def log_init():
     logger.setLevel(logging.DEBUG)
 
     # Create a handler and a formatted
     ch = logging.StreamHandler()
-    ch.setLevel(level)
+    ch.setLevel(args.debug_level)
     formatter = logging.Formatter('[%(asctime)s - %(name)s - %(levelname)s] %(message)s')
     ch.setFormatter(formatter)
 
