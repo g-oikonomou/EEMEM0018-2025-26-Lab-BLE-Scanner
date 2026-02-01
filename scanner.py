@@ -128,7 +128,7 @@ def detection_callback(device, advertisement_data):
             logger.warning("Warning: Company ID mismatch...")
 
 async def main():
-    logger.info("Starting Gateway for {TARGET_NAME}...")
+    logger.info("Starting BLE scanner")
     scanner = BleakScanner(detection_callback=detection_callback, scanning_mode='active')
     await scanner.start()
     await asyncio.Event().wait()
@@ -177,6 +177,7 @@ if __name__ == "__main__":
     args = arg_parser()
     log_init()
     try:
+        logger.info("Starting gateway")
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\nStopping Gateway...")
+        logger.info("Stopping gateway")
