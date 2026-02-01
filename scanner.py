@@ -94,6 +94,10 @@ def push_to_cloud(temperature, grp_id, grp_rssi):
         logger.error(" -> Cloud Connection Failed: {e}")
 
 def detection_callback(device, advertisement_data):
+    if device.name not in ble_whitelist_rules['device_names']:
+        logger.debug("Ignoring device '%s'" % (device.name,))
+        return
+
 
 async def main():
     logger.info("Starting BLE scanner")
