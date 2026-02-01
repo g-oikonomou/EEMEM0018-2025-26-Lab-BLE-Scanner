@@ -104,17 +104,18 @@ def detection_callback(device, advertisement_data):
                     last_sent_time = current_time
                     
             except Exception as e:
-                print(f"Error: {e}")
+                logging.error("Error: {e}")
         else:
-            print(f"Warning: Company ID mismatch...")
+            logging.warning("Warning: Company ID mismatch...")
 
 async def main():
-    print(f"Starting Gateway for {TARGET_NAME}...")
+    print("Starting Gateway for {TARGET_NAME}...")
     scanner = BleakScanner(detection_callback=detection_callback, scanning_mode='active')
     await scanner.start()
     await asyncio.Event().wait()
 
 if __name__ == "__main__":
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
