@@ -73,10 +73,10 @@ TB_ACCESS_TOKEN = "yyg96elwr9hjg19hfgot"  # <--- PASTE TOKEN HERE
 last_sent_time = 0
 UPLOAD_INTERVAL = 2.0 # Send to cloud every 1 second (even if BLE is faster)
 
-def push_to_cloud_mqtt(temperature, grp_id, grp_rssi):
+def push_to_cloud_mqtt(temperature, grp_id, rssi):
     return
 
-def push_to_cloud_https(temperature, grp_id, grp_rssi):
+def push_to_cloud_https(temperature, grp_id, rssi):
     """Sends JSON data to ThingsBoard via HTTP"""
     url = f"{TB_URL}/{TB_ACCESS_TOKEN}/telemetry"
 
@@ -86,7 +86,7 @@ def push_to_cloud_https(temperature, grp_id, grp_rssi):
     # Payload format follows this JSON schema: https://thingsboard.io/docs/reference/http-api/
     payload = {
         json_key_temp: temperature,
-        json_key_rssi: grp_rssi
+        json_key_rssi: rssi
     }
 
     try:
@@ -102,7 +102,7 @@ def push_to_cloud_https(temperature, grp_id, grp_rssi):
     except Exception as e:
         logger.error(f" -> Cloud Connection Failed: {e}")
 
-def push_to_cloud(temperature, grp_id, grp_rssi):
+def push_to_cloud(temperature, grp_id, rssi):
     try:
         globals()[transport_handlers[args.transport]]()
     except TypeError:
