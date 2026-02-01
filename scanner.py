@@ -85,7 +85,7 @@ def push_to_cloud(temperature, grp_id, grp_rssi):
         elif response.status_code == 404:
             logger.warning("Invalid ACCESS_TOKEN used")
         else:
-            logging.warning(" -> Cloud Error: {response.status_code}")
+            logger.warning(" -> Cloud Error: {response.status_code}")
     except Exception as e:
         logger.error(" -> Cloud Connection Failed: {e}")
 
