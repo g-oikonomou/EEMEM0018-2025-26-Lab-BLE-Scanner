@@ -98,6 +98,15 @@ def detection_callback(device, advertisement_data):
         logger.debug("Ignoring device '%s'" % (device.name,))
         return
 
+    logger.debug(advertisement_data)
+
+    try:
+        manufacturer_data_bytes = advertisement_data.manufacturer_data[ble_whitelist_rules['company_id']]
+    except KeyError as e:
+        logger.debug("Ignoring unknown manufacturer 0x%04x" %
+                     (list(advertisement_data.manufacturer_data.keys())[0],))
+        return
+
 
 async def main():
     logger.info("Starting BLE scanner")
