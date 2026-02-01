@@ -156,7 +156,7 @@ def arg_parser():
                            help="Push data to ThingsBoard over TRANSPORT. If -t is specified but TRANSPORT is omitted, "
                                 "%s will be used. If the argument is omitted altogether, data will not be pushed."
                                 % (defaults['transport'],))
-    
+
     log_group = parser.add_argument_group('Debugging')
     log_group.add_argument('-D', '--debug-level', action = 'store',
                            choices = choices['debug_level'],
