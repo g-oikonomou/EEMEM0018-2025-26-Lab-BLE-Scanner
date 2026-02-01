@@ -32,6 +32,12 @@ import requests
 from bleak import BleakScanner
 from bleak.exc import BleakBluetoothNotAvailableError
 
+# Auth tokens from external source - not version controlled
+try:
+    from tokens import tokens
+except ModuleNotFoundError as e:
+    pass
+
 # Configure a logger.
 # We create a separate logger here so we can control ourselves without messing around with bleak
 import logging
