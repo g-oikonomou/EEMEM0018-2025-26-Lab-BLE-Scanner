@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import sys
 import asyncio
 import time
 import struct
@@ -29,6 +30,7 @@ import struct
 import requests
 # Import scanner
 from bleak import BleakScanner
+from bleak.exc import BleakBluetoothNotAvailableError
 
 # Configure a logger.
 # We create a separate logger here so we can control ourselves without messing around with bleak
@@ -178,6 +180,11 @@ if __name__ == "__main__":
     log_init()
     try:
         logger.info("Starting gateway")
-        asyncio.run(main())
+        try:
+            asyncio.run(main())
+        except BleakBluetoothNotAvailableError as e:
+            logger.error("Bluetooth not available. Exiting")
+            sys.exit(1)
+
     except KeyboardInterrupt:
         logger.info("Stopping gateway")
