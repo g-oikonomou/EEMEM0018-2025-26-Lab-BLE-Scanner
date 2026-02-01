@@ -102,6 +102,8 @@ def detection_callback(device, advertisement_data):
 
     try:
         manufacturer_data_bytes = advertisement_data.manufacturer_data[ble_whitelist_rules['company_id']]
+        logger.debug("  Manufacturer: 0x%04x" % (ble_whitelist_rules['company_id'],))
+        logger.debug(f"       Payload: {manufacturer_data_bytes.hex(' ')}")
     except KeyError as e:
         logger.debug("Ignoring unknown manufacturer 0x%04x" %
                      (list(advertisement_data.manufacturer_data.keys())[0],))
