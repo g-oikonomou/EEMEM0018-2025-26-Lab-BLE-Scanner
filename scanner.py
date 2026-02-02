@@ -47,7 +47,8 @@ logger = logging.getLogger('Scanner')
 # Command line argument support
 import argparse
 defaults = {
-    'transport': 'MQTT',
+    'transport': None,
+    'transport_const': 'MQTT',
     'debug_level': 'INFO',
 }
 
@@ -159,10 +160,11 @@ def arg_parser():
 
     out_group = parser.add_argument_group('Transport Options')
     out_group.add_argument('-t', '--transport', action='store', nargs='?',
-                           const=defaults['transport'], choices=choices['transport'], default=defaults['transport'],
+                           const=defaults['transport_const'], choices=choices['transport'],
+                           default=defaults['transport'],
                            help="Push data to ThingsBoard over TRANSPORT. If -t is specified but TRANSPORT is omitted, "
                                 "%s will be used. If the argument is omitted altogether, data will not be pushed."
-                                % (defaults['transport'],))
+                                % (defaults['transport_const'],))
 
     log_group = parser.add_argument_group('Debugging')
     log_group.add_argument('-D', '--debug-level', action = 'store',
