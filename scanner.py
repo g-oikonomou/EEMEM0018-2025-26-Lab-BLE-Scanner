@@ -127,10 +127,11 @@ def push_to_cloud(temperature, grp_id, rssi):
         return
 
     try:
-        globals()[transport_handlers[args.transport]]()
+        globals()[transport_handlers[args.transport]](temperature, grp_id, rssi)
     except TypeError:
         # If the transport handler has not been set, then it will be None and we get a TypeError.
         # Carry on without pushing
+        logger.debug("Suppressing Push: Transport not requested")
         pass
 
     # Update the timestamp of the most recent attempt to send from this device
