@@ -135,6 +135,30 @@ def detection_callback(device, advertisement_data):
         logger.warning("*** Bad manufacturer 0x%04x ***" % (list(advertisement_data.manufacturer_data.keys())[0],))
         return
 
+    # So now we have a Device Name of interest, with Manufacturer Specific Data inside,
+    # and the Manufacturer is also of interest. Try to parse the Manufacturer Specific Payload
+    # We expect:
+    # * Group number. unsigned 1 byte
+    # * Temperature. signed 2 bytes, little-endian
+
+    try:
+        # 1. Decode BLE: refer to https://docs.python.org/3/library/struct.html, Section: Format Characters
+        unpacked = struct.unpack("<Bh", manufacturer_data_bytes)
+
+        group_id = unpacked[0]
+        temperature = unpacked[1]
+
+        if group_id not in range(GROUP_ID_COUNT):
+            logger.warning("*** Group ID %d out of bounds ***" % (group_id,))
+            return
+
+        # If we reach here we are satisfied with the Manufacturer Specific payload
+        logger.info("%s: G=%d, T=%d, RSSI=%d" % (device.name, group_id, temperature, advertisement_data.rssi))
+        push_to_cloud(temperature, group_id, advertisement_data.rssi)
+
+    except struct.error as e:
+        logger.warning("*** Error unpacking Manufacturer Specific Data ***: %s" % (e,))
+        pass
 
 async def main():
     logger.info("Starting BLE scanner")
