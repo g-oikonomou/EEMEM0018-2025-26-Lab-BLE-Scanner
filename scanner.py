@@ -72,6 +72,13 @@ ble_whitelist_rules = {
     'company_id': 0x0059,
 }
 
+# We have GROUP_ID_COUNT groups, numbered from 0 to (GROUP_ID_COUNT - 1)
+# Create a list of MAX_GROUP_NUMBER + 1 elements.
+# Element 0 is for the teaching team
+GROUP_ID_COUNT = 41
+GROUP_ID_TEACHING_TEAM = 0
+last_tx_timestamps = [0 for x in range(GROUP_ID_COUNT)]
+
 # ThingsBoard Config
 TB_URL = "https://demo.thingsboard.io/api/v1"
 TB_ACCESS_TOKEN = "yyg96elwr9hjg19hfgot"  # <--- PASTE TOKEN HERE
@@ -112,12 +119,22 @@ def push_to_cloud_https(temperature, grp_id, rssi):
         logger.error(f" -> Cloud Connection Failed: {e}")
 
 def push_to_cloud(temperature, grp_id, rssi):
+    logger.debug("Pushing to Cloud")
+    current_time = time.time()
+    delta_from_last_tx = current_time - last_tx_timestamps[grp_id]
+    if delta_from_last_tx < UPLOAD_INTERVAL:
+        logger.debug("Suppressing Push: Last attempt was %u ago" % (delta_from_last_tx,))
+        return
+
     try:
         globals()[transport_handlers[args.transport]]()
     except TypeError:
         # If the transport handler has not been set, then it will be None and we get a TypeError.
         # Carry on without pushing
         pass
+
+    # Update the timestamp of the most recent attempt to send from this device
+    last_tx_timestamps[grp_id] = current_time
 
 def detection_callback(device, advertisement_data):
     if device.name not in ble_whitelist_rules['device_names']:
