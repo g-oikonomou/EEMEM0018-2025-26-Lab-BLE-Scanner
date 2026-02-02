@@ -124,12 +124,13 @@ def detection_callback(device, advertisement_data):
 
 
     try:
-        logger.info("Scanned device '%s'" % (device.name,))
-        logger.debug("%s" % (advertisement_data,))
+        logger.debug("Scanned device '%s'" % (device.name,))
+        logger.debug("       Address: %s" % (device.address,))
+        logger.debug("     Adv. Data: %s" % (advertisement_data,))
         manufacturer_data_bytes = advertisement_data.manufacturer_data[ble_whitelist_rules['company_id']]
-        logger.info("  Manufacturer: 0x%04x" % (ble_whitelist_rules['company_id'],))
-        logger.info(f"       Payload: {manufacturer_data_bytes.hex(' ')}")
-        logger.info("          RSSI: %d" % (advertisement_data.rssi,))
+        logger.debug("  Manufacturer: 0x%04x" % (ble_whitelist_rules['company_id'],))
+        logger.debug(f"       Payload: {manufacturer_data_bytes.hex(' ')}")
+        logger.debug("          RSSI: %d" % (advertisement_data.rssi,))
     except KeyError:
         logger.warning("*** Bad manufacturer 0x%04x ***" % (list(advertisement_data.manufacturer_data.keys())[0],))
         return
