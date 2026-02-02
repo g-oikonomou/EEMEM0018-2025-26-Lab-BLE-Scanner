@@ -56,6 +56,11 @@ choices = {
     'transport': ('MQTT', 'HTTPS'),
 }
 
+transport_handlers = {
+    'MQTT': 'push_to_cloud_mqtt',
+    'HTTPS': 'push_to_cloud_https',
+}
+
 __version__ = '2025/26'
 
 # BLE Whitelisting Configuration
