@@ -81,9 +81,11 @@ last_sent_time = 0
 UPLOAD_INTERVAL = 2.0 # Send to cloud every 1 second (even if BLE is faster)
 
 def push_to_cloud_mqtt(temperature, grp_id, rssi):
+    logger.debug("Pushing over MQTT")
     return
 
 def push_to_cloud_https(temperature, grp_id, rssi):
+    logger.debug("Pushing over HTTPS")
     """Sends JSON data to ThingsBoard via HTTP"""
     url = f"{TB_URL}/{TB_ACCESS_TOKEN}/telemetry"
 
