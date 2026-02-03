@@ -90,6 +90,9 @@ def push_to_cloud_mqtt(temperature, grp_id, rssi):
     logger.debug("Pushing over MQTT")
     return
 
+# This function is based on the original code and has not been updated to reflect recent code updates.
+# It is not expected to work without adjustments, in particular when it comes to new command line arguments and
+# in terms of authentication token handling. Logging/Debugging messages should be OK, but need testing.
 def push_to_cloud_https(temperature, grp_id, rssi):
     logger.debug("Pushing over HTTPS")
     """Sends JSON data to ThingsBoard via HTTP"""
