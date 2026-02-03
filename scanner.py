@@ -190,8 +190,12 @@ def detection_callback(device, advertisement_data):
 async def main():
     logger.info("Starting BLE scanner")
     scanner = BleakScanner(detection_callback=detection_callback, scanning_mode='active')
-    await scanner.start()
-    await asyncio.Event().wait()
+    try:
+        await scanner.start()
+        await asyncio.Event().wait()
+    except KeyboardInterrupt:
+        await scanner.stop()
+        raise
 
 def log_init():
     logger.setLevel(logging.DEBUG)
