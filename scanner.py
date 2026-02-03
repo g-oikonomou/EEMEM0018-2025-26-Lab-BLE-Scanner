@@ -50,8 +50,10 @@ defaults = {
     'transport': None,
     'transport_const': 'MQTT',
     'debug_level': 'INFO',
-    'broker': 'localhost',
-    'server': 'localhost',
+    'mqtt_broker': 'localhost',
+    'mqtt_port': 1883,
+    'https_server': 'localhost',
+    'https_port': 443,
     'min_push_interval': 30,
 }
 
@@ -222,12 +224,16 @@ def arg_parser():
                                 "Default: %s" % (defaults['min_push_interval'],))
 
     out_group = parser.add_argument_group('MQTT Options')
-    out_group.add_argument('-b', '--broker', action='store', default=defaults['broker'],
-                           help="Push data to a broker over MQTT. Default: %s" % (defaults['broker'],))
+    out_group.add_argument('-b', '--mqtt-broker', action='store', default=defaults['mqtt_broker'],
+                           help="MQTT broker hostname or address. Default: %s" % (defaults['mqtt_broker'],))
+    out_group.add_argument('-p', '--mqtt-port', action='store', default=defaults['mqtt_port'],
+                           help="MQTT broker port. Default: %d" % (defaults['mqtt_port'],))
 
     out_group = parser.add_argument_group('HTTPS Options')
-    out_group.add_argument('-s', '--server', action='store', default=defaults['server'],
-                           help="Push data over HTTPS. Default: %s" % (defaults['server'],))
+    out_group.add_argument('-s', '--https-server', action='store', default=defaults['https_server'],
+                           help="HTTPS server hostname or address. Default: %s" % (defaults['https_server'],))
+    out_group.add_argument('-P', '--https-port', action='store', default=defaults['https_port'],
+                           help="HTTPS server port. Default: %d" % (defaults['https_port'],))
 
     log_group = parser.add_argument_group('Debugging')
     log_group.add_argument('-D', '--debug-level', action = 'store',
