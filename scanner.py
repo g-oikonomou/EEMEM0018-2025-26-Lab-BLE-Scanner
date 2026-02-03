@@ -127,7 +127,7 @@ def push_to_cloud(temperature, grp_id, rssi):
     current_time = time.time()
     delta_from_last_tx = current_time - last_tx_timestamps[grp_id]
     if delta_from_last_tx < args.min_push_interval:
-        logger.debug("Suppressing Push: Last attempt was %u ago" % (delta_from_last_tx,))
+        logger.warning("Suppressing Push: Last attempt was %u ago" % (delta_from_last_tx,))
         return
 
     try:
