@@ -50,6 +50,9 @@ defaults = {
     'transport': None,
     'transport_const': 'MQTT',
     'debug_level': 'INFO',
+    'broker': 'localhost',
+    'server': 'localhost',
+    'min_push_interval': 30,
 }
 
 choices = {
@@ -82,10 +85,6 @@ last_tx_timestamps = [0 for x in range(GROUP_ID_COUNT)]
 # ThingsBoard Config
 TB_URL = "https://demo.thingsboard.io/api/v1"
 TB_ACCESS_TOKEN = "yyg96elwr9hjg19hfgot"  # <--- PASTE TOKEN HERE
-
-# State variables for throttling
-last_sent_time = 0
-UPLOAD_INTERVAL = 2.0 # Send to cloud every 1 second (even if BLE is faster)
 
 def push_to_cloud_mqtt(temperature, grp_id, rssi):
     logger.debug("Pushing over MQTT")
@@ -122,7 +121,7 @@ def push_to_cloud(temperature, grp_id, rssi):
     logger.debug("Pushing to Cloud, G=%d" % (grp_id,))
     current_time = time.time()
     delta_from_last_tx = current_time - last_tx_timestamps[grp_id]
-    if delta_from_last_tx < UPLOAD_INTERVAL:
+    if delta_from_last_tx < args.min_push_interval:
         logger.debug("Suppressing Push: Last attempt was %u ago" % (delta_from_last_tx,))
         return
 
@@ -213,6 +212,19 @@ def arg_parser():
                            help="Push data to ThingsBoard over TRANSPORT. If -t is specified but TRANSPORT is omitted, "
                                 "%s will be used. If the argument is omitted altogether, data will not be pushed."
                                 % (defaults['transport_const'],))
+    out_group.add_argument('-m', '--min-push-interval', action='store',
+                           default=defaults['min_push_interval'],
+                           help="Suppress pushing data from a device to the cloud if we have pushed data from the same "
+                                "device within the last MIN_PUSH_INTERVAL seconds. "
+                                "Default: %s" % (defaults['min_push_interval'],))
+
+    out_group = parser.add_argument_group('MQTT Options')
+    out_group.add_argument('-b', '--broker', action='store', default=defaults['broker'],
+                           help="Push data to a broker over MQTT. Default: %s" % (defaults['broker'],))
+
+    out_group = parser.add_argument_group('HTTPS Options')
+    out_group.add_argument('-s', '--server', action='store', default=defaults['server'],
+                           help="Push data over HTTPS. Default: %s" % (defaults['server'],))
 
     log_group = parser.add_argument_group('Debugging')
     log_group.add_argument('-D', '--debug-level', action = 'store',
