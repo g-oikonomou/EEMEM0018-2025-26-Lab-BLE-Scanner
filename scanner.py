@@ -32,7 +32,7 @@ import requests
 # Import scanner
 from bleak import BleakScanner
 from bleak.exc import BleakBluetoothNotAvailableError
-import paho.mqtt.client as mqtt
+import paho.mqtt.publish as publish
 import json
 
 # Configure a logger.
@@ -102,32 +102,19 @@ def push_to_cloud_mqtt(temperature, grp_id, rssi):
         logger.error(f"MQTT: Access Token not set: {token}")
         raise ValueError
 
-    def on_publish(client, userdata, mid, reason_code, properties):
-        logger.debug(f"MQTT: MID:{mid} published, reason '{reason_code}'")
+    credentials = {'username': token}
 
-    mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-    mqttc.username_pw_set(token, None)
-    mqttc.on_publish = on_publish
+    logger.info("MQTT: Publishing, P='%s'" % (payload,))
+    logger.debug("  B='%s:%d', Q=%d, T='%s'" % (args.mqtt_broker, args.mqtt_port, qos, topic))
+
     try:
-        mqttc.connect(args.mqtt_broker, args.mqtt_port, 60)
-
-        mqttc.loop_start()
-
-        logger.info("MQTT: Publishing, P='%s'" % (payload,))
-        logger.debug("  B='%s:%d', Q=%d, T='%s'" % (args.mqtt_broker, args.mqtt_port, qos, topic))
-
-        mqttc.publish(topic, payload, qos)
+        publish.single(topic, payload, qos, hostname=args.mqtt_broker, port=args.mqtt_port, auth=credentials)
     except ConnectionRefusedError:
         logger.warning(f"MQTT: Connection Refused")
         raise
     except Exception as e:
         logger.warning(f"MQTT: Error '{e}'")
         raise
-    finally:
-        logger.debug("MQTT: Disconnecting")
-        mqttc.loop_stop()
-        mqttc.disconnect()
-    return
 
 # This function is based on the original code and has not been updated to reflect recent code updates.
 # It is not expected to work without adjustments, in particular when it comes to new command line arguments and
