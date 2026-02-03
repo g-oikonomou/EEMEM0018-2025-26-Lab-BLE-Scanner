@@ -131,11 +131,17 @@ def push_to_cloud(temperature, grp_id, rssi):
 
     try:
         globals()[transport_handlers[args.transport]](temperature, grp_id, rssi)
+    except ConnectionRefusedError:
+        logger.warning(f"Transport handler raised ConnectionRefusedError")
+        return
+    except ValueError:
+        logger.warning(f"Transport handler raised ValueError")
+        return
     except KeyError:
         # If the transport handler has not been set, then it will be None and we get a KeyError.
         # Carry on without pushing
         logger.debug("Suppressing Push: Transport not set")
-        pass
+        return
 
     # Update the timestamp of the most recent attempt to send from this device
     last_tx_timestamps[grp_id] = current_time
