@@ -86,7 +86,6 @@ last_tx_timestamps = [0 for x in range(GROUP_ID_COUNT)]
 
 # ThingsBoard Config
 TB_URL = "https://demo.thingsboard.io/api/v1"
-TB_ACCESS_TOKEN = "yyg96elwr9hjg19hfgot"  # <--- PASTE TOKEN HERE
 
 def push_to_cloud_mqtt(temperature, grp_id, rssi):
     logger.debug("Pushing over MQTT")
