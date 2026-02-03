@@ -179,7 +179,6 @@ def detection_callback(device, advertisement_data):
         logger.debug("Ignoring device '%s'" % (device.name,))
         return
 
-
     try:
         logger.debug("Scanned device '%s'" % (device.name,))
         logger.debug("       Address: %s" % (device.address,))
