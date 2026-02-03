@@ -119,7 +119,7 @@ def push_to_cloud_https(temperature, grp_id, rssi):
         logger.error(f" -> Cloud Connection Failed: {e}")
 
 def push_to_cloud(temperature, grp_id, rssi):
-    logger.debug("Pushing to Cloud")
+    logger.debug("Pushing to Cloud, G=%d" % (grp_id,))
     current_time = time.time()
     delta_from_last_tx = current_time - last_tx_timestamps[grp_id]
     if delta_from_last_tx < UPLOAD_INTERVAL:
@@ -131,11 +131,14 @@ def push_to_cloud(temperature, grp_id, rssi):
     except KeyError:
         # If the transport handler has not been set, then it will be None and we get a KeyError.
         # Carry on without pushing
-        logger.debug("Suppressing Push: Transport not requested")
+        logger.debug("Suppressing Push: Transport not set")
         pass
 
     # Update the timestamp of the most recent attempt to send from this device
     last_tx_timestamps[grp_id] = current_time
+    logger.info("Pushed G:%d, T:%s" %
+                (grp_id,
+                 time.strftime(time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(last_tx_timestamps[grp_id])))))
 
 def detection_callback(device, advertisement_data):
     if device.name not in ble_whitelist_rules['device_names']:
