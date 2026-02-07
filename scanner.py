@@ -69,7 +69,7 @@ __version__ = '2025/26'
 # We only process BLE packets from devices with a name that appears in a well-known list
 # We only process manufacturer-specific data if the manufacturer is Nordic Semi (0x0059)
 ble_whitelist_rules = {
-    'device_names': {'EEMEM0018 IoT SP Lab'},
+    'device_names': {'EEMEM0018 Lab'},
     'company_id': 0x0059,
 }
 
