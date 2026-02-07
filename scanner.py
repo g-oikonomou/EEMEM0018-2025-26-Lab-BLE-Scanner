@@ -83,15 +83,16 @@ last_tx_timestamps = [0 for x in range(GROUP_ID_COUNT)]
 # ThingsBoard Config
 TB_URL = "https://demo.thingsboard.io/api/v1"
 
-def push_to_cloud_mqtt(temperature, grp_id, rssi):
+def push_to_cloud_mqtt(grp_id, temperature, voltage, rssi):
     topic = 'v1/gateway/telemetry'
     # Unacknowledged, fire and forget 'at most once' delivery
     qos = 0
 
-    # {"Group 2 Device": [{"temperature": -270}, {"rssi": -54}]}
+    # {"Group 2 Device": [{"temperature": 17}, {"voltage": 2900}, {"rssi": -54}]}
     payload = json.dumps({
         f'Group {grp_id} Device': [
             {'temperature': temperature},
+            {'voltage': voltage},
             {'rssi': rssi},
         ],
     })
@@ -119,7 +120,7 @@ def push_to_cloud_mqtt(temperature, grp_id, rssi):
 # This function is based on the original code and has not been updated to reflect recent code updates.
 # It is not expected to work without adjustments, in particular when it comes to new command line arguments and
 # in terms of authentication token handling. Logging/Debugging messages should be OK, but need testing.
-def push_to_cloud_https(temperature, grp_id, rssi):
+def push_to_cloud_https(grp_id, temperature, voltage, rssi):
     logger.debug("Pushing over HTTPS")
     """Sends JSON data to ThingsBoard via HTTP"""
     url = f"{TB_URL}/{TB_ACCESS_TOKEN}/telemetry"
@@ -146,7 +147,7 @@ def push_to_cloud_https(temperature, grp_id, rssi):
     except Exception as e:
         logger.error(f" -> Cloud Connection Failed: {e}")
 
-def push_to_cloud(temperature, grp_id, rssi):
+def push_to_cloud(grp_id, temperature, voltage, rssi):
     logger.debug("Pushing to Cloud, G=%d" % (grp_id,))
     current_time = time.time()
     delta_from_last_tx = current_time - last_tx_timestamps[grp_id]
@@ -155,7 +156,7 @@ def push_to_cloud(temperature, grp_id, rssi):
         return
 
     try:
-        globals()[transport_handlers[args.transport]](temperature, grp_id, rssi)
+        globals()[transport_handlers[args.transport]](grp_id, temperature, voltage, rssi)
     except ConnectionRefusedError:
         logger.warning(f"Transport handler raised ConnectionRefusedError")
         return
@@ -195,22 +196,25 @@ def detection_callback(device, advertisement_data):
     # and the Manufacturer is also of interest. Try to parse the Manufacturer Specific Payload
     # We expect:
     # * Group number. unsigned 1 byte
-    # * Temperature. signed 2 bytes, little-endian
+    # * Temperature. signed 2 bytes, big-endian
+    # * Voltage. signed 4 bytes, big-endian
 
     try:
         # 1. Decode BLE: refer to https://docs.python.org/3/library/struct.html, Section: Format Characters
-        unpacked = struct.unpack("<Bh", manufacturer_data_bytes)
+        unpacked = struct.unpack(">Bhl", manufacturer_data_bytes)
 
         group_id = unpacked[0]
         temperature = unpacked[1]
+        voltage = unpacked[2]
 
         if group_id not in range(GROUP_ID_COUNT):
             logger.warning("*** Group ID %d out of bounds ***" % (group_id,))
             return
 
         # If we reach here we are satisfied with the Manufacturer Specific payload
-        logger.info("%s: G=%d, T=%d, RSSI=%d" % (device.name, group_id, temperature, advertisement_data.rssi))
-        push_to_cloud(temperature, group_id, advertisement_data.rssi)
+        logger.info("%s: G=%d, T=%d, V=%d, RSSI=%d" % (device.name, group_id, temperature, voltage,
+                                                       advertisement_data.rssi))
+        push_to_cloud(group_id, temperature, voltage, advertisement_data.rssi)
 
     except struct.error as e:
         logger.warning("*** Error unpacking Manufacturer Specific Data ***: %s" % (e,))
