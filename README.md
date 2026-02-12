@@ -47,7 +47,7 @@ variable:
   `export ACCESS_TOKEN=<paste the value here>`
 
 * To push data over MQTT to the ThingsBoard cloud:
-`./scanner.py -t -b mqtt.thingsboard.cloud`. 
+`./scanner.py -t -b mqtt.thingsboard.cloud`.
 
 # Alternative Transports
 
