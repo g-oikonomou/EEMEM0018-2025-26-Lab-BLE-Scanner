@@ -44,7 +44,7 @@ press the "Copy access token" button.
 * Back on your computer's terminal, store the copied token in the `ACCESS_TOKEN` environment
 variable:
 
-  `export export ACCESS_TOKEN=<paste the value here>`
+  `export ACCESS_TOKEN=<paste the value here>`
 
 * To push data over MQTT to the ThingsBoard cloud:
 `./scanner.py -t -b mqtt.thingsboard.cloud`. 
