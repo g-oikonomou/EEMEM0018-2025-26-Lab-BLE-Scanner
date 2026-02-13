@@ -123,7 +123,7 @@ def push_to_cloud_mqtt(grp_id, temperature, voltage, rssi):
 def push_to_cloud_https(grp_id, temperature, voltage, rssi):
     logger.debug("Pushing over HTTPS")
     """Sends JSON data to ThingsBoard via HTTP"""
-    url = f"{TB_URL}/{TB_ACCESS_TOKEN}/telemetry"
+    url = f"{TB_URL}/{ACCESS_TOKEN}/telemetry"
 
     json_key_temp = f"Temperature_{grp_id}"
     json_key_rssi = f"RSSI_{grp_id}"
