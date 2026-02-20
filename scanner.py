@@ -76,7 +76,7 @@ ble_whitelist_rules = {
 # We have GROUP_ID_COUNT groups, numbered from 0 to (GROUP_ID_COUNT - 1)
 # Create a list of MAX_GROUP_NUMBER + 1 elements.
 # Element 0 is for the teaching team
-GROUP_ID_COUNT = 41
+GROUP_ID_COUNT = 46
 GROUP_ID_TEACHING_TEAM = 0
 last_tx_timestamps = [0 for x in range(GROUP_ID_COUNT)]
 
