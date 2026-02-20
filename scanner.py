@@ -177,7 +177,7 @@ def push_to_cloud(grp_id, temperature, voltage, rssi):
 
 def detection_callback(device, advertisement_data):
     if device.name not in ble_whitelist_rules['device_names']:
-        logger.debug("Ignoring device '%s'" % (device.name,))
+        # logger.debug("Ignoring device '%s'" % (device.name,))
         return
 
     try:
